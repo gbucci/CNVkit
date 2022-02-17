@@ -1,0 +1,2 @@
+workdir: "/beegfs/scratch/ric.cosr/ric.cosr/DellabonaP/gbprova/CNA/CNVkit"
+samples: config/samples.tsv

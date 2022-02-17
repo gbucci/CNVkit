@@ -13,26 +13,27 @@ import numpy as np
 include: "rules/slurm.smk"
 configfile: "config/config.yaml"
   
-  
-#absolute path of folder containing the .bam files
-DATADIR_SHORT="/beegfs/scratch/ric.cosr/ric.cosr/../markdup"
+#samples = pd.read_table("config/samples.tsv").set_index("sample", drop=False)  
 
+samples = (
+    pd.read_csv(
+        config["samples"],
+        sep="\t",
+        dtype={"sample_name": str, "status": str},
+        comment="#",
+    )
+    .set_index("sample_name", drop=False)
+    .sort_index()
+)
 
-#set of prefix of sample names 
-#P = set(["PTCL_0010","PTCL_0020","PTCL_0030"])
+print(samples)
 
-P = set(["PTCL_0010"])
-
-PATIENT = ' '.join(map(str, P))
-
-print("PATIENT", PATIENT)
-
-
-rule all:
-    input:
-        expand(['CNVKIT_PLOTS/{base}-scatter-region.pdf'], base=PATIENT.split(' ')),
-        expand('CNVKIT_PLOTS/all_heatmap.pdf', base=PATIENT.split(' ')),
-        expand('CNVKIT_PLOTS/all_heatmap_region.pdf', base=PATIENT.split(' ')),
-        expand('CNVKIT_PLOTS/{base}-diagram.pdf', base=PATIENT.split(' ')),
-        expand('CNVKIT_PLOTS/{base}-density.pdf', base=PATIENT.split(' ')),
-        expand('CNVKIT_PLOTS/{base}-scatter.pdf', base=PATIENT.split(' '))
+rule idxstat:
+	input:
+		"",
+		""
+	output:
+		"results/",
+		"results/"
+	shell:
+		"samtools idxstats {input} > {output}.stat"
