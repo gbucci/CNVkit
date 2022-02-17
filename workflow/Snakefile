@@ -12,3 +12,27 @@ import numpy as np
 
 include: "rules/slurm.smk"
 configfile: "config/config.yaml"
+  
+  
+#absolute path of folder containing the .bam files
+DATADIR_SHORT="/beegfs/scratch/ric.cosr/ric.cosr/../markdup"
+
+
+#set of prefix of sample names 
+#P = set(["PTCL_0010","PTCL_0020","PTCL_0030"])
+
+P = set(["PTCL_0010"])
+
+PATIENT = ' '.join(map(str, P))
+
+print("PATIENT", PATIENT)
+
+
+rule all:
+    input:
+        expand(['CNVKIT_PLOTS/{base}-scatter-region.pdf'], base=PATIENT.split(' ')),
+        expand('CNVKIT_PLOTS/all_heatmap.pdf', base=PATIENT.split(' ')),
+        expand('CNVKIT_PLOTS/all_heatmap_region.pdf', base=PATIENT.split(' ')),
+        expand('CNVKIT_PLOTS/{base}-diagram.pdf', base=PATIENT.split(' ')),
+        expand('CNVKIT_PLOTS/{base}-density.pdf', base=PATIENT.split(' ')),
+        expand('CNVKIT_PLOTS/{base}-scatter.pdf', base=PATIENT.split(' '))
