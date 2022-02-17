@@ -11,13 +11,13 @@ import pandas as pd
 import numpy as np
 
 include: "rules/slurm.smk"
-configfile: "config/config.yaml"
+#configfile: "config/config.yaml"
   
 #samples = pd.read_table("config/samples.tsv").set_index("sample", drop=False)  
 
-samples = (
+sample_table = (
     pd.read_csv(
-        config["samples"],
+	"config/samples.tsv",
         sep="\t",
         dtype={"sample_name": str, "status": str},
         comment="#",
@@ -26,14 +26,15 @@ samples = (
     .sort_index()
 )
 
-print(samples)
+
+#retrieve bam path
+def bam_from_sample(wildcards):
+	return sample_table.loc[wildcards.sample_name, "bam"]
 
 rule idxstat:
 	input:
-		"",
-		""
+		bam_from_sample	
 	output:
-		"results/",
-		"results/"
+		"results/{sample_name}.stat"
 	shell:
-		"samtools idxstats {input} > {output}.stat"
+		"samtools idxstats {input} > {output}"
