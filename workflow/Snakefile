@@ -2,10 +2,13 @@
 # Please follow the best practices: 
 # https://snakemake.readthedocs.io/en/stable/snakefiles/best_practices.html,
 # in particular regarding the standardized folder structure mentioned there. 
+from snakemake.io import glob_wildcards, expand
 import sys
 import os
 import logging
-from snakemake.io import glob_wildcards, expand
 import csv
 import pandas as pd
 import numpy as np
+
+include: "rules/slurm.smk"
+configfile: "config/config.yaml"
