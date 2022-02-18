@@ -19,38 +19,37 @@ sample_table = (
     pd.read_csv(
 	"config/samples.tsv",
         sep="\t",
-        dtype={"id": str, "status": str},
+        dtype={"sample_name": str, "status": str},
         comment="#",
     )
-    .set_index(["id","status"], drop=False)
+    .set_index("sample_name", drop=False)
     .sort_index()
 )
 
-SAMPLES=sample_table.id
-#print(SAMPLES)
+SAMPLES=sample_table.sample_name
+print(SAMPLES)
 
 #retrieve bam path
 def bam_from_sample(wildcards):
 	return sample_table.loc[wildcards.sample_name, "bam"]
 
-def get_normal_bam(wildcards):
-	return sample_table[sample_table["status"] == "0"].loc[{wildcards.id},"bam"]
-def get_tumor_bam(wildcards):
-        return sample_table[sample_table["status"] == "1"].loc[{wildcards.id},"bam"]
+def get_normal_bam(sample_name):
+	return sample_table.loc[(sample_table.loc[sample_table.sample_name,"status"] == "1" ), "bam"]
 
-SAMPLES=sample_table.id
-
-TUM=sample_table[sample_table["status"] == "1"].id
-NORM=sample_table[sample_table["status"] == "0"].id
-print(TUM)
-print(NORM)
+#print(get_normal_bam("ESOCA12_OCT"))
 
 rule all:
-	input: expand("results/{id}.normal.stat",id=NORM),
+	input: expand("results/{sample}.stat",sample=SAMPLES),
+		expand("results/{sample}_normal.txt",sample=SAMPLES)
 
 rule idxstat:
-	input: get_normal_bam,
-	output: stat1="results/{id}.normal.stat"
+	input: bam_from_sample,
+	output: stat1="results/{sample_name}.stat"
 	resources: time_min=5000, mem_mb=4800, cpus=4
 	threads: 4
 	shell: "samtools idxstat {input} > {output}"
+
+rule head1:
+	input: get_normal_bam,
+	output: header1="results\{sample_name}_normal.txt"
+
