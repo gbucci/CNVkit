@@ -26,15 +26,19 @@ sample_table = (
     .sort_index()
 )
 
+SAMPLES=sample_table.sample_name
+print(SAMPLES)
 
 #retrieve bam path
 def bam_from_sample(wildcards):
 	return sample_table.loc[wildcards.sample_name, "bam"]
 
+rule all:
+	input: expand("results/{sample}.stat",sample=SAMPLES)
+
 rule idxstat:
-	input:
-		bam_from_sample	
-	output:
-		"results/{sample_name}.stat"
-	shell:
-		"samtools idxstats {input} > {output}"
+	input: bam_from_sample,
+	output: stat1="results/{sample_name}.stat"
+	resources: time_min=5000, mem_mb=4800, cpus=4
+	threads: 4
+	shell: "samtools idxstat {input} > {output}"
